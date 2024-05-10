@@ -22,12 +22,12 @@ void func1()
 
 void func2()
 {
-    cout << std::this_thread::get_id() << "locking mutx2\n";
-    std::lock_guard<std::mutex> lock(mtx2);
-    cout << std::this_thread::get_id() << "locked mutx2\n";
-    std::this_thread::sleep_for(50ms);
     cout << std::this_thread::get_id() << "locking mutx1\n";
-    std::lock_guard<std::mutex> lock2(mtx1);
+    std::lock_guard<std::mutex> lock(mtx1);
+    cout << std::this_thread::get_id() << "locked mutx1\n";
+    std::this_thread::sleep_for(50ms);
+    cout << std::this_thread::get_id() << "locking mutx2\n";
+    std::lock_guard<std::mutex> lock2(mtx2);
     cout << std::this_thread::get_id() << "locked mutx2\n";
 }
 
