@@ -3,8 +3,8 @@ STD=c++20
 OPT=-O0
 CXXFLAGS=-g $(OPT) -std=$(STD) -I.
 BINARY=bin
-FILENAME=condVar.cpp
-OBJECTS=condVar.o
+FILENAME=threadCoordinate.cpp
+OBJECTS=threadCoordinate.o
 
 all: $(BINARY)
 

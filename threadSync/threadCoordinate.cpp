@@ -1,3 +1,4 @@
+#include <condition_variable>
 #include <iostream>
 #include <mutex>
 #include <string>
@@ -12,6 +13,9 @@ string data{};
 bool progressFlag = false;
 bool completed = false;
 
+std::condition_variable dataCondVar;
+std::condition_variable completedCondVar;
+
 std::mutex dataMtx;
 std::mutex procMtx;
 
@@ -25,6 +29,7 @@ void fetch()
         data += "Byte" + std::to_string(i);
         cout << data << " received\n";
         progressFlag = true;
+        dataCondVar.notify_all();
     }
 
     std::lock_guard<std::mutex> procLock(procMtx);
@@ -36,16 +41,16 @@ void progressBar()
     while (true)
     {
         std::unique_lock<std::mutex> progLock(dataMtx);
-        while (!progressFlag)
-        {
-            progLock.unlock();
-            std::this_thread::sleep_for(2ms);
-            progLock.lock();
-        }
-
+        // while (!progressFlag)
+        //{
+        //     progLock.unlock();
+        //     std::this_thread::sleep_for(2ms);
+        //     progLock.lock();
+        // }
+        dataCondVar.wait(progLock, []() { return progressFlag; });
         int sz = data.size();
         progressFlag = false;
-        progLock.unlock();
+        // progLock.unlock();
         cout << "progressed " << sz << " bytes\n";
 
         std::lock_guard<std::mutex> procLock(procMtx);
