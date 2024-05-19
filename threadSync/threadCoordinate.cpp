@@ -34,6 +34,7 @@ void fetch()
 
     std::lock_guard<std::mutex> procLock(procMtx);
     completed = true;
+    completedCondVar.notify_all();
 }
 
 void progressBar()
@@ -53,7 +54,8 @@ void progressBar()
         // progLock.unlock();
         cout << "progressed " << sz << " bytes\n";
 
-        std::lock_guard<std::mutex> procLock(procMtx);
+        std::unique_lock<std::mutex> procLock(procMtx);
+        completedCondVar.wait_for(procLock, 10ms, []() { return completed; });
         if (completed)
         {
             cout << "download completed\n";
@@ -65,14 +67,16 @@ void progressBar()
 void process()
 {
     std::unique_lock<std::mutex> lock(procMtx);
-    while (!completed)
-    {
-        lock.unlock();
-        std::this_thread::sleep_for(10ms);
-        lock.lock();
-    }
+    // while (!completed)
+    //{
+    //     lock.unlock();
+    //     std::this_thread::sleep_for(10ms);
+    //     lock.lock();
+    // }
 
-    lock.unlock();
+    // lock.unlock();
+    completedCondVar.wait(lock, []() { return completed; });
+
     cout << "processing the data ..\n";
 }
 
