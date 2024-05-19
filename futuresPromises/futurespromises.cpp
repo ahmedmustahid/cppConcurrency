@@ -23,7 +23,9 @@ int main()
     std::future fut = prom.get_future();
     std::thread t1(produce, std::ref(prom));
     std::thread t2(consume, std::ref(fut));
+    std::thread t3(consume, std::ref(fut));
 
     t1.join();
     t2.join();
+    t3.join();
 }
